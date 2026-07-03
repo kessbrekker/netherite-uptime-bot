@@ -16,7 +16,7 @@ process.on('unhandledRejection', (reason) => {
 
 // --- GitHub Actions 4 saatlik job döngüsü için temiz kapanış ---
 // 4 saat = 240 dk; 238 dk sonra bot quit() → exit(0) → Cloudflare Worker yeni job başlatır
-const JOB_SURE_MS = 3 * 60 * 1000;
+const JOB_SURE_MS = 238 * 60 * 1000;
 setTimeout(() => {
     console.log('[Sistem] Job süresi dolmak üzere, process temiz kapatılıyor (exit 0)...');
     // --- [Düzeltme] Önce botu temiz kapat, paketin gitmesi için 500ms bekle ---
