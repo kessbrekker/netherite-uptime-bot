@@ -11,7 +11,7 @@ jobs:
   run-bot:
     name: "Bot Çalıştır (4 saat)"
     runs-on: ubuntu-latest
-    timeout-minutes: 10   # 4 saat + 10 dk güvenlik tamponu
+    timeout-minutes: 250   # 4 saat + 10 dk güvenlik tamponu
 
     steps:
       - name: Kodu çek
