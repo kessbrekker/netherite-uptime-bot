@@ -1,0 +1,50 @@
+name: Minecraft Bot - 4 Saatlik Döngü
+
+on:
+  # Manuel başlatma (ilk çalıştırma için)
+  workflow_dispatch:
+  # Cloudflare Worker'dan otomatik tetikleme
+  repository_dispatch:
+    types: [start-bot]
+
+jobs:
+  run-bot:
+    name: "Bot Çalıştır (4 saat)"
+    runs-on: ubuntu-latest
+    timeout-minutes: 250   # 4 saat + 10 dk güvenlik tamponu
+
+    steps:
+      - name: Kodu çek
+        uses: actions/checkout@v4
+
+      - name: Node.js kur
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
+
+      - name: Bağımlılıkları yükle
+        run: npm ci
+
+      - name: Botu başlat (4 saat çalışır, sonra temiz kapanır)
+        run: node index.js
+
+      # Bot exit(0) ile kapandıktan sonra bu adım çalışır
+      - name: Cloudflare Worker'ı tetikle (yeni job başlat)
+        if: always()
+        env:
+          WORKER_URL: ${{ secrets.CLOUDFLARE_WORKER_URL }}
+          WORKER_SECRET: ${{ secrets.WORKER_SECRET }}
+        run: |
+          echo "Bot kapandı. Cloudflare Worker'a yeni job isteği gönderiliyor..."
+          HTTP_STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -X POST "$WORKER_URL" \
+            -H "Content-Type: application/json" \
+            -H "X-Worker-Secret: $WORKER_SECRET" \
+            --max-time 30)
+          echo "Worker HTTP yanıtı: $HTTP_STATUS"
+          if [ "$HTTP_STATUS" = "200" ]; then
+            echo "✅ Yeni job başarıyla tetiklendi."
+          else
+            echo "⚠️ Worker tetiklenemedi (HTTP $HTTP_STATUS). Bir sonraki manuel başlatmayı bekle."
+          fi
