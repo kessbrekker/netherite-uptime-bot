@@ -1,6 +1,6 @@
 {
-  "host": "mc.netherite.me",
-  "port": 20727,
+  "host": "netheriteme.aternos.me",
+  "port": 36090,
   "mainBotName": "mc.netherite.me",
   "version": "1.20.4"
 }
